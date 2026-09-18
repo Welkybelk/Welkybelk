@@ -1,280 +1,56 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLINDSPOT — 2D Shooter</title>
-    <!-- Puter.js provides zero-config, free cloud signaling for peer-to-peer WebRTC connection -->
-    <script src="https://puter.com"></script>
-    <style>
-        body {
-            background-color: #0b0f19;
-            color: #f3f4f6;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            max-width: 800px;
-            width: 100%;
-            background: #111827;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            border: 1px solid #1f2937;
-        }
-        h1, h2 { color: #f43f5e; margin-top: 0; }
-        .section {
-            background: #1f2937;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #374151;
-        }
-        label { display: block; margin: 10px 0 5px; font-weight: bold; }
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            background: #111827;
-            border: 1px solid #4b5563;
-            color: white;
-            border-radius: 6px;
-            box-sizing: border-box;
-        }
-        button {
-            background: #f43f5e;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.2s;
-        }
-        button:hover { background: #e11d48; }
-        .flex-row { display: flex; gap: 10px; margin-top: 10px; }
-        .flex-row button { flex: 1; margin-top: 0; }
-        .status-box {
-            padding: 10px;
-            background: #065f46;
-            color: #a7f3d0;
-            border-radius: 6px;
-            margin-top: 10px;
-            display: none;
-            font-weight: bold;
-        }
-        #gameCanvas {
-            background: black;
-            border: 3px solid #f43f5e;
-            display: none;
-            margin-top: 20px;
-            border-radius: 6px;
-        }
-        .instructions { font-size: 14px; color: #9ca3af; line-height: 1.5; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BLINDSPOT // Tactical Arena</title>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <style>
+    :root{--bg:#070b14;--panel:#0e1626;--panel2:#131e31;--line:#243653;--text:#e8eef8;--muted:#91a2bd;--accent:#ff3d68;--cyan:#45e6ff}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -10%,#1b2944 0,#070b14 58%);color:var(--text);font:15px Inter,ui-sans-serif,system-ui,sans-serif;display:grid;place-items:center;padding:22px}
+    .app{width:min(980px,100%)} .brand{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.brand h1{font-size:clamp(28px,5vw,48px);letter-spacing:.14em;margin:0;color:#fff}.brand h1 span{color:var(--accent)}.tag{color:var(--muted);font-size:11px;letter-spacing:.2em}
+    .card{background:linear-gradient(145deg,rgba(19,30,49,.96),rgba(9,15,27,.96));border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 24px 80px #0008}.grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}.panel{background:rgba(14,22,38,.85);border:1px solid var(--line);border-radius:13px;padding:20px}.panel h2{font-size:12px;letter-spacing:.18em;color:var(--cyan);margin:0 0 15px}.sub{color:var(--muted);line-height:1.55;margin:0 0 20px}label{display:block;color:var(--muted);font-size:12px;margin:12px 0 6px}input{width:100%;background:#080e1b;border:1px solid #2b3d5c;border-radius:8px;color:var(--text);padding:12px;outline:none}input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #45e6ff18}.row{display:flex;gap:9px}.row>*{flex:1}button{border:0;border-radius:8px;padding:12px 14px;margin-top:12px;background:var(--accent);color:white;font-weight:750;cursor:pointer;transition:.18s transform,.18s filter}button:hover{filter:brightness(1.14);transform:translateY(-1px)}button.secondary{background:#1d2d48;color:#dce8fa}button.ghost{background:transparent;border:1px solid #334966;color:var(--muted)}button:disabled{opacity:.45;cursor:not-allowed;transform:none}.status{min-height:42px;margin-top:14px;padding:11px 13px;border-radius:8px;background:#0a1221;color:var(--muted);font-size:13px}.status.ok{color:#a9f7da;border:1px solid #1f8067}.status.error{color:#ff9aaa;border:1px solid #863449}.lobby{margin-top:18px}.lobby ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}.lobby li{display:flex;justify-content:space-between;padding:10px 12px;background:#0a1221;border-radius:7px;color:var(--muted)}.lobby li b{color:var(--text)}.controls{color:var(--muted);font-size:13px;line-height:2}.key{display:inline-block;min-width:25px;padding:0 5px;text-align:center;color:#fff;background:#243653;border-radius:4px;line-height:21px}.hidden{display:none!important}
+    #gameWrap{position:relative;width:min(960px,100%)}#gameCanvas{display:block;width:100%;height:auto;background:#050912;border:1px solid #30496b;border-radius:14px;box-shadow:0 20px 70px #000}#hud{position:absolute;inset:14px 16px auto;display:flex;justify-content:space-between;pointer-events:none;text-shadow:0 2px 5px #000;font-size:12px;letter-spacing:.08em}.pill{background:#091222cc;border:1px solid #2b4162;padding:8px 11px;border-radius:7px}.danger{color:#ff6687}.cyan{color:var(--cyan)}#exitBtn{position:absolute;right:16px;bottom:16px;margin:0;pointer-events:auto}
+    @media(max-width:700px){.grid{grid-template-columns:1fr}.card{padding:16px}.brand{display:block}.tag{margin-top:7px}.row{flex-wrap:wrap}}
+  </style>
 </head>
 <body>
-
-<div class="container" id="menuInterface">
-    <h1>BLINDSPOT</h1>
-    <p>Tactical 2D shooter — you only see what's in front of you.</p>
-
-    <div class="section">
-        <h2>YOUR FIGHTER</h2>
-        <label for="callsign">Callsign</label>
-        <input type="text" id="callsign" value="Player">
-        
-        <label for="playerColor">Color</label>
-        <input type="text" id="playerColor" value="#f43f5e">
+<main class="app" id="menu">
+  <header class="brand"><h1>BLIND<span>SPOT</span></h1><div class="tag">TACTICAL ARENA // BUILD 02</div></header>
+  <section class="card">
+    <div class="grid">
+      <div class="panel"><h2>IDENTITY</h2><p class="sub">Pick a callsign and color. Your flashlight is your only reliable view in the arena.</p><label for="callsign">CALLSIGN</label><input id="callsign" value="Player" maxlength="16"><label for="playerColor">ARMOR COLOR</label><input id="playerColor" type="color" value="#ff3d68" style="height:44px;padding:4px"><div class="status" id="status">Create a room to start a match.</div></div>
+      <div class="panel"><h2>QUICK BRIEFING</h2><div class="controls"><b class="key">W</b><b class="key">A</b><b class="key">S</b><b class="key">D</b> move &nbsp; <b class="key">MOUSE</b> aim<br><b class="key">CLICK</b> fire &nbsp; <b class="key">ESC</b> leave match<br><br>Room networking uses PeerJS WebRTC. The room host relays player state so everyone sees the same squad.</div><div class="row"><button id="createBtn">Create room</button><button id="soloBtn" class="secondary">Solo practice</button></div><label for="roomCode">ROOM CODE</label><div class="row"><input id="roomCode" placeholder="4 letters" maxlength="4"><button id="joinBtn">Join</button></div></div>
     </div>
-
-    <div class="section">
-        <h2>PLAY</h2>
-        <div class="instructions">
-            <strong>Move:</strong> W / S forward & back · <strong>turn:</strong> A / D <br>
-            <strong>fire:</strong> Space or click · <strong>scoreboard:</strong> hold Tab · <strong>menu:</strong> Esc<br>
-            Your flashlight cone is all you can see — walls block sight, so watch corners.
-        </div>
-        
-        <label for="roomCodeInput">Join a room</label>
-        <div class="flex-row">
-            <input type="text" id="roomCodeInput" placeholder="Enter 4-letter code">
-            <button onclick="joinRoom()">Join</button>
-        </div>
-
-        <div class="flex-row">
-            <button onclick="createRoom()">Create Room</button>
-            <button onclick="startSolo()">Solo Practice</button>
-            <button onclick="openMapMaker()">Map Maker</button>
-        </div>
-
-        <div id="statusMessage" class="status-box"></div>
-    </div>
-
-    <div class="section" id="lobbySection" style="display:none;">
-        <h2>LOBBY PLAYERS</h2>
-        <ul id="playerList"></ul>
-        <button id="startMatchBtn" onclick="startMatch()" style="display:none;">Start Match</button>
-    </div>
-</div>
-
-<canvas id="gameCanvas" width="900" height="600"></canvas>
-
+    <div class="panel lobby hidden" id="lobby"><h2>LOBBY <span id="roomLabel" class="tag"></span></h2><ul id="players"></ul><div class="row"><button id="startBtn">Start match</button><button id="copyBtn" class="secondary">Copy code</button></div></div>
+  </section>
+</main>
+<div id="gameWrap" class="hidden"><canvas id="gameCanvas" width="960" height="600"></canvas><div id="hud"><div class="pill cyan" id="roomHud"></div><div class="pill">BLINDSPOT <span class="danger">● LIVE</span></div></div><button id="exitBtn" class="ghost">Exit</button></div>
 <script>
-    let networkGroup = null;
-    let isHost = false;
-    let myId = Math.random().toString(36).substring(2, 9);
-    let players = {};
-    let gameState = "menu";
-
-    // Setup network configurations via Puter P2P capabilities
-    async function createRoom() {
-        const statusBox = document.getElementById('statusMessage');
-        statusBox.style.display = 'block';
-        statusBox.innerText = "Generating signaling connection...";
-
-        // Create random 4 letter tracking code
-        const code = Math.random().toString(36).substring(2, 6).toUpperCase();
-        isHost = true;
-        
-        try {
-            // Puter creates a secure P2P mesh cluster using the room code identifier
-            networkGroup = await puter.createGroup(code);
-            statusBox.style.backgroundColor = "#065f46";
-            statusBox.innerText = `Room active! Share Code: ${code}. Waiting for devices...`;
-            
-            document.getElementById('lobbySection').style.display = 'block';
-            document.getElementById('startMatchBtn').style.display = 'block';
-            
-            listenForPlayers();
-        } catch (err) {
-            statusBox.style.backgroundColor = "#991b1b";
-            statusBox.innerText = "Connection failed. Retry.";
-        }
-    }
-
-    async function joinRoom() {
-        const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
-        const statusBox = document.getElementById('statusMessage');
-        
-        if(code.length !== 4) {
-            alert("Please input a valid 4-letter room code.");
-            return;
-        }
-
-        statusBox.style.display = 'block';
-        statusBox.innerText = `Searching for room ${code}...`;
-        isHost = false;
-
-        try {
-            networkGroup = await puter.joinGroup(code);
-            statusBox.style.backgroundColor = "#065f46";
-            statusBox.innerText = `Connected successfully to Room ${code}!`;
-            
-            document.getElementById('lobbySection').style.display = 'block';
-            
-            listenForPlayers();
-            
-            // Broadcast your custom configuration parameters to the room host
-            networkGroup.broadcast('player_joined', {
-                id: myId,
-                name: document.getElementById('callsign').value,
-                color: document.getElementById('playerColor').value
-            });
-        } catch (err) {
-            statusBox.style.backgroundColor = "#991b1b";
-            statusBox.innerText = "Room code not found. Double check text.";
-        }
-    }
-
-    function listenForPlayers() {
-        if (!networkGroup) return;
-
-        // Trigger updates when other nodes send game network packages
-        networkGroup.onMessage((message) => {
-            const data = message.body;
-            
-            if (message.type === 'player_joined') {
-                players[data.id] = { name: data.name, color: data.color, x: 100, y: 100 };
-                updateLobbyUI();
-                
-                if (isHost) {
-                    // Send lobby layout confirmation back to the new player
-                    networkGroup.broadcast('sync_lobby', { players: players });
-                }
-            }
-            
-            if (message.type === 'sync_lobby') {
-                players = data.players;
-                updateLobbyUI();
-            }
-
-            if (message.type === 'match_start') {
-                initGameEngine();
-            }
-
-            if (message.type === 'game_update') {
-                if (players[data.id]) {
-                    players[data.id].x = data.x;
-                    players[data.id].y = data.y;
-                }
-            }
-        });
-    }
-
-    function updateLobbyUI() {
-        const list = document.getElementById('playerList');
-        list.innerHTML = "";
-        
-        // Render yourself locally in list
-        const meLi = document.createElement('li');
-        meLi.innerText = `${document.getElementById('callsign').value} (You)`;
-        list.appendChild(meLi);
-
-        // Render connected devices dynamically
-        Object.keys(players).forEach(id => {
-            if (id !== myId) {
-                const li = document.createElement('li');
-                li.innerText = players[id].name;
-                li.style.color = players[id].color;
-                list.appendChild(li);
-            }
-        });
-    }
-
-    function startMatch() {
-        if (!isHost) return;
-        networkGroup.broadcast('match_start', {});
-        initGameEngine();
-    }
-
-    function startSolo() {
-        document.getElementById('menuInterface').style.display = 'none';
-        document.getElementById('gameCanvas').style.display = 'block';
-        // Initialize solo offline configuration loop...
-    }
-
-    function openMapMaker() {
-        alert("Map Maker view active! Canvas grid layer loaded.");
-    }
-
-    // Barebones baseline canvas render frame loop implementation 
-    function initGameEngine() {
-        document.getElementById('menuInterface').style.display = 'none';
-        document.getElementById('gameCanvas').style.display = 'block';
-        gameState = "playing";
-        
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        let localPlayer = { x: 450, y: 300, speed: 4, angle: 0 };
-        
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'w' || e.key === 'W') localPlayer.y -= localPlayer.speed;
-            if (e.key === 's' || e.key === 'S') localPlayer.y += localPlayer.speed;
-            if (e.key === 'a' || e.key === 'A') localPlayer.x -= localPlayer.speed;
+'use strict';
+const $=id=>document.getElementById(id); let peer=null,host=false,room='',connections=[],conn=null,started=false,raf=0,lastSend=0;
+const me={id:crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2),name:'Player',color:'#ff3d68',x:480,y:300,a:0}; const players={}; const keys=new Set(); const bullets=[]; let mouse={x:480,y:300,down:false};
+function say(text,type=''){const s=$('status');s.textContent=text;s.className='status '+type} function cleanName(){me.name=($('callsign').value.trim()||'Player').slice(0,16);me.color=$('playerColor').value}
+function makeCode(){return Math.random().toString(36).slice(2,6).toUpperCase()}
+function setLobby(){ $('lobby').classList.remove('hidden');$('roomLabel').textContent='ROOM '+room; updateList() }
+function updateList(){const list=$('players');list.innerHTML=''; const all=Object.values(players); if(!all.some(p=>p.id===me.id))all.unshift(me); all.forEach(p=>{const li=document.createElement('li');li.innerHTML='<b style="color:'+p.color+'">'+escapeHtml(p.name)+'</b><span>'+(p.id===me.id?'YOU':'READY')+'</span>';list.appendChild(li)})}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function send(c,msg){try{c&&c.open&&c.send(msg)}catch(e){}}
+function broadcast(msg,except){connections.forEach(c=>{if(c!==except)send(c,msg)})}
+function announce(){players[me.id]={...me};updateList();broadcast({t:'roster',players:Object.values(players),started})}
+function setupHostPeer(){peer=new Peer('blindspot-'+room);peer.on('open',()=>{say('Room active. Share code '+room+' with your squad.','ok');setLobby();announce()});peer.on('connection',c=>{connections.push(c);c.on('open',()=>send(c,{t:'hello',player:me,players:Object.values(players),started}));c.on('data',m=>hostMessage(c,m));c.on('close',()=>{connections=connections.filter(x=>x!==c);if(maybeId=c.peer)delete players[maybeId];announce()})});peer.on('error',e=>say('Could not create room. Try another code.','error'))}
+function hostMessage(c,m){if(m.t==='join'){players[m.player.id]={...m.player};announce()} if(m.t==='state'){players[m.player.id]={...players[m.player.id],...m.player};broadcast(m,c)} if(m.t==='fire')broadcast(m,c)}
+function createRoom(){cleanName();room=makeCode();host=true;say('Connecting to signaling service…');$('createBtn').disabled=true;setupHostPeer()}
+function joinRoom(){cleanName();room=$('roomCode').value.trim().toUpperCase();if(!/^[A-Z0-9]{4}$/.test(room))return say('Enter a valid 4-character room code.','error');say('Joining room '+room+'…');host=false;peer=new Peer();peer.on('open',()=>{conn=peer.connect('blindspot-'+room,{reliable:true});conn.on('open',()=>{send(conn,{t:'join',player:me});say('Connected. Waiting for the host to start the match.','ok');setLobby()});conn.on('data',clientMessage);conn.on('close',()=>say('Host disconnected.','error'))});peer.on('error',()=>say('Room not found or already closed.','error'))}
+function clientMessage(m){if(m.t==='hello'){m.players.forEach(p=>players[p.id]=p);started=m.started;updateList();if(started)beginGame()}if(m.t==='roster'){m.players.forEach(p=>players[p.id]=p);started=m.started;updateList();if(started)beginGame()}if(m.t==='state'){players[m.player.id]={...players[m.player.id],...m.player}}if(m.t==='fire')bullets.push({...m.fire,life:35})}
+function startMatch(){if(!host)return;say('Match live. Hunt carefully.','ok');started=true;announce();beginGame()}
+function beginGame(){if(raf)return;$('menu').classList.add('hidden');$('gameWrap').classList.remove('hidden');$('roomHud').textContent=room?'ROOM '+room:'SOLO // TRAINING';raf=requestAnimationFrame(loop)}
+function startSolo(){cleanName();room='';host=false;players[me.id]={...me};beginGame()}
+function endGame(){cancelAnimationFrame(raf);raf=0;keys.clear();$('gameWrap').classList.add('hidden');$('menu').classList.remove('hidden');if(peer)peer.destroy();peer=null;conn=null;connections=[];started=false;say('Create a room to start a match.');$('lobby').classList.add('hidden');$('createBtn').disabled=false}
+function loop(t){const dt=Math.min(2,(t-(loop.last||t))/16.67);loop.last=t;const dx=(keys.has('d')?1:0)-(keys.has('a')?1:0),dy=(keys.has('s')?1:0)-(keys.has('w')?1:0);const n=Math.hypot(dx,dy)||1;me.x=Math.max(22,Math.min(938,me.x+dx/n*3.2*dt));me.y=Math.max(22,Math.min(578,me.y+dy/n*3.2*dt));me.a=Math.atan2(mouse.y-me.y,mouse.x-me.x);if(host)players[me.id]={...me};if(t-lastSend>45){const m={t:'state',player:{id:me.id,x:me.x,y:me.y,a:me.a,name:me.name,color:me.color}};if(host){players[me.id]={...me};broadcast(m)}else send(conn,m);lastSend=t}if(mouse.down&&t-(loop.shot||0)>220){loop.shot=t;const f={x:me.x+Math.cos(me.a)*18,y:me.y+Math.sin(me.a)*18,a:me.a,owner:me.id};bullets.push({...f,life:35});const m={t:'fire',fire:f};host?broadcast(m):send(conn,m)}draw();raf=requestAnimationFrame(loop)}
+function draw(){const c=$('gameCanvas'),x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);x.fillStyle='#070d19';x.fillRect(0,0,c.width,c.height);x.strokeStyle='#12223a';x.lineWidth=1;for(let i=0;i<960;i+=40){x.beginPath();x.moveTo(i,0);x.lineTo(i,600);x.stroke()}for(let i=0;i<600;i+=40){x.beginPath();x.moveTo(0,i);x.lineTo(960,i);x.stroke()}x.fillStyle='#182942';[[80,100,260,22],[600,110,230,22],[180,450,250,22],[650,430,190,22],[450,210,22,150]].forEach(r=>x.fillRect(...r));Object.values(players).forEach(p=>{if(p.id!==me.id)drawPlayer(x,p)});drawPlayer(x,me,true);bullets.forEach(b=>{b.x+=Math.cos(b.a)*9;b.y+=Math.sin(b.a)*9;b.life--;x.fillStyle='#ffe38a';x.beginPath();x.arc(b.x,b.y,3,0,7);x.fill()});while(bullets.length&&bullets[0].life<=0)bullets.shift()}
+function drawPlayer(x,p,local){x.save();x.translate(p.x,p.y);x.rotate(p.a||0);x.globalAlpha=local?1:.8;x.fillStyle=p.color;x.shadowColor=p.color;x.shadowBlur=local?18:8;x.beginPath();x.moveTo(17,0);x.lineTo(-10,-10);x.lineTo(-7,10);x.closePath();x.fill();x.shadowBlur=0;x.strokeStyle='#fff8';x.stroke();x.restore();x.fillStyle='#fff';x.font='11px system-ui';x.textAlign='center';x.fillText(p.name,p.x,p.y-17)}
+window.addEventListener('keydown',e=>{if(['w','a','s','d'].includes(e.key.toLowerCase())){keys.add(e.key.toLowerCase());e.preventDefault()}if(e.key==='Escape')endGame()});window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));const cv=$('gameCanvas');cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();mouse.x=(e.clientX-r.left)*cv.width/r.width;mouse.y=(e.clientY-r.top)*cv.height/r.height});cv.addEventListener('mousedown',()=>mouse.down=true);window.addEventListener('mouseup',()=>mouse.down=false);$('createBtn').onclick=createRoom;$('joinBtn').onclick=joinRoom;$('soloBtn').onclick=startSolo;$('startBtn').onclick=startMatch;$('exitBtn').onclick=endGame;$('copyBtn').onclick=()=>navigator.clipboard?.writeText(room).then(()=>say('Room code copied.','ok'));
+</script>
+</body>
+</html>
